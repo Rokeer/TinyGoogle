@@ -6,9 +6,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class WorkQueueMonitor implements Runnable{
-	Queue<SearchTask> workQueue = null;
-	int numOfSQM = 0;
-	ExecutorService mExecutorService;
+	private Queue<SearchTask> workQueue = null;
+	private int numOfSQM = 0;
+	private ExecutorService mExecutorService;
 	
 	private Hashtable<String, Integer> helperList;
 	private Queue<HelperToken> helperQueue;

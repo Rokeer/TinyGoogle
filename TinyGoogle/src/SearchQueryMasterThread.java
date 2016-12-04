@@ -7,12 +7,12 @@ import java.util.Hashtable;
 import java.util.Queue;
 
 public class SearchQueryMasterThread implements Runnable {
-	Hashtable<String, Object> parameters;
-	Hashtable<String, InvertedIndex> iiList;
-	HelperToken ht;
-	InvertedIndex ii = new InvertedIndex();
-	String mStrMSG = "";
-	Queue<HelperToken> helperQueue;
+	private Hashtable<String, Object> parameters;
+	private Hashtable<String, InvertedIndex> iiList;
+	private HelperToken ht;
+	private InvertedIndex ii = new InvertedIndex();
+	private String mStrMSG = "";
+	private Queue<HelperToken> helperQueue;
 
 	public SearchQueryMasterThread(Hashtable<String, Object> parameters, Hashtable<String, InvertedIndex> iiList,
 			HelperToken ht, Queue<HelperToken> helperQueue) {
@@ -49,7 +49,7 @@ public class SearchQueryMasterThread implements Runnable {
 					throw new Exception();
 				}
 				mStrMSG = mStrMSG.substring(2, mStrMSG.length());
-				InvertedIndex ii = (InvertedIndex) Util.fromString(mStrMSG);
+				ii = (InvertedIndex) Util.fromString(mStrMSG);
 				//System.out.println("Search Query Master Thread: Ready to enter critical section");
 				synchronized (iiList) {
 					//System.out.println("Search Query Master Thread: Update indexed file list");

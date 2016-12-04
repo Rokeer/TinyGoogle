@@ -16,30 +16,40 @@ public class Client {
 		this.filename = filename;
 	}
 
+	@SuppressWarnings("resource")
 	public void start() {
 		System.out.println("Welcome to the Tiny-Google System");
-		System.out.println("Please select an operation:");
-		System.out.println("1. Create index for a folder");
-		System.out.println("2. Search keyword");
-		Scanner scan = new Scanner(System.in);
-		String input = scan.next();
-		if (input.equals("1")) {
+		
+		while(true){
+			System.out.println("Please select an operation:");
+			System.out.println("1. Create index for a folder");
+			System.out.println("2. Search keyword");
+			Scanner scan = new Scanner(System.in);
+			String input = scan.next();
+			if (input.equals("1")) {
 
-			System.out.println(
-					"Please type in the folder name, e.g./afs/cs.pitt.edu/usr0/colinzhang/public/Prj1HaoranZhang/");
-			String folder = scan.next();
-			System.out.println("Do you want to do it recursively? 0 or 1");
-			String recursion = scan.next();
-			sendRequest(1, recursion + "," + folder);
-		} else if (input.equals("2")) {
-			System.out.println("Please type in the keywords, e.g. this, is, colin");
-		} else {
-			System.out.println("Unknow command, please try again!");
+				System.out.println(
+						"Please type in the folder name, e.g./afs/cs.pitt.edu/usr0/colinzhang/public/Prj1HaoranZhang/");
+				String folder = scan.next();
+				System.out.println("Do you want to do it recursively? 0 or 1");
+				String recursion = scan.next();
+				sendRequest(1, recursion + "," + folder);
+			} else if (input.equals("2")) {
+				System.out.println("Please type in the keywords, e.g. this, is, colin");
+				String keywords = scan.next();
+				sendRequest(2, keywords);
+			} else {
+				System.out.println("Unknow command, please try again!");
+			}
+			System.out.println("Type in anything to continue...");
+			input = scan.next();
+			System.out.println("******************************************************");
 		}
+		
 
 	}
 
-	public void sendRequest(int type, String request) {
+	private void sendRequest(int type, String request) {
 		try {
 			// This will reference one line at a time
 			String line = null;
@@ -73,10 +83,11 @@ public class Client {
 
 			PrintWriter mPrintWriter = new PrintWriter(mSocket.getOutputStream(), true);
 			BufferedReader mBufferedReader = new BufferedReader(new InputStreamReader(mSocket.getInputStream()));
-
+			System.out.println("Sending request: " + "c," + type + "," + request);
 			mPrintWriter.flush();
 			mPrintWriter.println("c," + type + "," + request);
-			System.out.println("Testing: " + "c," + type + "," + request);
+			
+			System.out.println("Wait for response...");
 			while (((mStrMSG = mBufferedReader.readLine()) != null)) {
 				mStrMSG = mStrMSG.trim();
 				if (type == 1) {
@@ -88,8 +99,8 @@ public class Client {
 				} else if (type == 2) {
 					String[] tmp = mStrMSG.split(",");
 					if (tmp[0].equals("1")) {
-						System.out.println(
-								((InvertedIndex) Util.fromString(mStrMSG.substring(2, mStrMSG.length()))).toString());
+						InvertedIndex returned = (InvertedIndex) Util.fromString(mStrMSG.substring(2, mStrMSG.length()));
+						System.out.println(returned.showResult());
 					} else {
 						System.out.println("Searching request for " + request + ": Fail");
 					}
@@ -110,10 +121,11 @@ public class Client {
 		String path = "";
 		String filename = path + "server.txt";
 		Client c = new Client(filename);
-		//c.start();
-		c.sendRequest(1, "1,/Users/colin/Documents/PPAP");
-		c.sendRequest(1, "1,/Users/colin/Documents/PPAP2");
-		c.sendRequest(2, "pineapple, colin");
+		
+		//c.sendRequest(1, "1,/Users/colin/Documents/PPAP");
+		//c.sendRequest(1, "1,/Users/colin/Documents/PPAP2");
+		//c.sendRequest(2, "colin");
+		c.start();
 
 	}
 

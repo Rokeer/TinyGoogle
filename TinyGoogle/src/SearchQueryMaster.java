@@ -16,7 +16,6 @@ public class SearchQueryMaster implements Runnable {
 	private Queue<HelperToken> helperQueue;
 	private InvertedIndex mainII;
 	private Hashtable<String, ArrayList<String>> indexedFolders;
-	private BufferedReader mBufferedReader;
 	private PrintWriter mPrintWriter;
 	private int waitTime = 60;
 	private int retry = 1;
@@ -29,12 +28,12 @@ public class SearchQueryMaster implements Runnable {
 		this.helperQueue = helperQueue;
 		this.mainII = mainII;
 		this.indexedFolders = indexedFolders;
-		mBufferedReader = new BufferedReader(new InputStreamReader(task.getSocket().getInputStream()));
+		new BufferedReader(new InputStreamReader(task.getSocket().getInputStream()));
 	}
 
 	@Override
 	public void run() {
-		System.out.println("Search Query Master: Start to work on query \"" + task.query + "\" from "
+		System.out.println("Search Query Master: Start to work on query \"" + task.getQuery() + "\" from "
 				+ task.getSocket().getRemoteSocketAddress());
 		ArrayList<Hashtable<String, Object>> paraList = new ArrayList<Hashtable<String, Object>>();
 		
@@ -93,13 +92,13 @@ public class SearchQueryMaster implements Runnable {
 					result = 0;
 				} else if (iiList.size() != paraList.size()) {
 					if (retry < maximumRetry) {
-						System.out.println("Indexing Master: At least one thread have problem! Retry!");
+						System.out.println("Search Query Master: At least one thread have problem! Retry!");
 					} else {
-						System.out.println("Indexing Master: At least one thread have problem! Report Error!");
+						System.out.println("Search Query Master: At least one thread have problem! Report Error!");
 					}
 					result = 0;
 				} else {
-					System.out.println("Indexing Master: All jobs done, merging results.");
+					System.out.println("Search Query Master: All jobs done, merging results.");
 					for (int i = 0; i < paraList.size(); i++) {
 						resultII.merge(iiList.get(paraList.get(i).get("folder")));
 					}
@@ -119,7 +118,7 @@ public class SearchQueryMaster implements Runnable {
 				result = 1;
 				
 			} catch (Exception e) {
-				System.out.println("Indexing Master: Error happen when searching " + task.query);
+				System.out.println("Search Query Master: Error happen when searching " + task.getQuery());
 				result = 0;
 			}
 			

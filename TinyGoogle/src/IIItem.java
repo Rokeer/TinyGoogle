@@ -1,5 +1,6 @@
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class IIItem implements Serializable{
 	private String id = "";
 	private int count = 0;

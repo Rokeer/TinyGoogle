@@ -1,4 +1,7 @@
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -42,9 +45,12 @@ public class Server {
 			System.out.println("Server: Created!");
 
 			saveToFile();
+			
 			System.out.println("Server: Store Server information to " + filename);
 
 			System.out.println("Server: Initializing...");
+			recovery();
+			
 			mExecutorService.execute(
 					new WorkQueueMonitor(workQueue, numOfSQM, helperList, helperQueue, mainII, indexedFolders));
 			mExecutorService.execute(new HelperChecker(helperList));
@@ -76,6 +82,99 @@ public class Server {
 		}
 	}
 
+	
+	@SuppressWarnings("unchecked")
+	private void recovery(){
+		mainII = new InvertedIndex();
+		String line;
+		try {
+			// FileReader reads text files in the default encoding.
+			FileReader fileReader = new FileReader("mainii.model");
+
+			// Always wrap FileReader in BufferedReader.
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+			while ((line = bufferedReader.readLine()) != null) {
+				line = line.trim();
+				mainII = (InvertedIndex) Util.fromString(line);
+				break;
+			}
+			// Always close files.
+			bufferedReader.close();
+		} catch (FileNotFoundException ex) {
+			System.out.println("Unable to open file 'mainii.model'");
+		} catch (IOException ex) {
+			System.out.println("Error reading file 'mainii.model'");
+			// Or we could just do this:
+			// ex.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try {
+			// FileReader reads text files in the default encoding.
+			FileReader fileReader = new FileReader("indexedfolders.model");
+
+			// Always wrap FileReader in BufferedReader.
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+			while ((line = bufferedReader.readLine()) != null) {
+				line = line.trim();
+				indexedFolders = (Hashtable<String, ArrayList<String>>) Util.fromString(line);
+				break;
+			}
+			// Always close files.
+			bufferedReader.close();
+		} catch (FileNotFoundException ex) {
+			System.out.println("Unable to open file 'indexedfolders.model'");
+		} catch (IOException ex) {
+			System.out.println("Error reading file 'indexedfolders.model'");
+			// Or we could just do this:
+			// ex.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try {
+			// FileReader reads text files in the default encoding.
+			FileReader fileReader = new FileReader("helperlist.model");
+
+			// Always wrap FileReader in BufferedReader.
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+			while ((line = bufferedReader.readLine()) != null) {
+				line = line.trim();
+				helperList = (Hashtable<String, Integer>) Util.fromString(line);
+				break;
+			}
+			// Always close files.
+			bufferedReader.close();
+		} catch (FileNotFoundException ex) {
+			System.out.println("Unable to open file 'helperlist.model'");
+		} catch (IOException ex) {
+			System.out.println("Error reading file 'helperlist.model'");
+			// Or we could just do this:
+			// ex.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		for (String key : helperList.keySet()) {
+			int numOfThread = helperList.get(key);
+			for (int i = 0; i < numOfThread; i++) {
+				String[] tmp = key.split(":");
+				int port = Integer.parseInt(tmp[1]);
+				String server = tmp[0];
+				helperQueue.add(new HelperToken(server, port, i));
+			}
+		}
+		
+		
+	}
+	
 	private void saveToFile() throws UnknownHostException {
 		InetAddress addr = InetAddress.getLocalHost();
 		System.out.println("Server: IP Address: " + addr.getHostAddress());

@@ -3,13 +3,15 @@ import java.util.Collections;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
+@SuppressWarnings("serial")
 public class InvertedIndex implements Serializable{
-	Hashtable<String, LinkedList<IIItem>> list = new Hashtable<String, LinkedList<IIItem>>();
+	private Hashtable<String, LinkedList<IIItem>> list = new Hashtable<String, LinkedList<IIItem>>();
 	
 	public InvertedIndex() {
 		
 	}
 	
+	@SuppressWarnings("unchecked")
 	private InvertedIndex(Hashtable<String, LinkedList<IIItem>> list) {
 		this.list = (Hashtable<String, LinkedList<IIItem>>) list.clone();
 	}
@@ -102,6 +104,23 @@ public class InvertedIndex implements Serializable{
 				result = result + tmpList.get(i).getID() + " -> " + tmpList.get(i).getCount() + "; ";
 			}
 			result = result + "\n";
+		}
+		return result;
+	}
+	
+	public String showResult() {
+		String result = "";
+		if (list.containsKey("result")){
+			LinkedList<IIItem> tmpList = list.get("result");
+			for (int i = 0; i < tmpList.size(); i++) {
+				result = result + tmpList.get(i).getID() + " -> " + tmpList.get(i).getCount() + "\n";
+			}
+			if (!result.equals("")) {
+				result = result.substring(0, result.length()-1);
+			}
+		}
+		if (result.equals("")) {
+			result = "Sorry there is no document contains all keywords in your searching query, please try again...";
 		}
 		return result;
 	}

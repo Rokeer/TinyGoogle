@@ -1,8 +1,8 @@
 
 public class HelperToken {
-	String server = "";
-	int port = 0;
-	int thread = 0;
+	private String server = "";
+	private int port = 0;
+	private int thread = 0;
 	
 	public HelperToken(String server, int port, int thread) {
 		this.server = server;

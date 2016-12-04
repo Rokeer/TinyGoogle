@@ -1,4 +1,7 @@
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.LinkedList;
@@ -60,7 +63,8 @@ public class IndexingMaster {
 		return filelist;
 	}
 
-	public int updateLists(ArrayList<String> removeList, Hashtable<String, ArrayList<String>> localIndexedFolders,
+	@SuppressWarnings("unchecked")
+	private int updateLists(ArrayList<String> removeList, Hashtable<String, ArrayList<String>> localIndexedFolders,
 			InvertedIndex localII) {
 		synchronized (mainII) {
 			InvertedIndex backUpII = mainII.clone();
@@ -76,10 +80,64 @@ public class IndexingMaster {
 				}
 
 				mainII.merge(localII);
+				
+				BufferedWriter out = null;
+				try {
+					out = new BufferedWriter(new FileWriter("mainii.model"));
+					out.write(Util.toString(mainII));
+				} catch (IOException e) {
+					e.printStackTrace();
+				} finally {
+					try {
+						out.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				
+				try {
+					out = new BufferedWriter(new FileWriter("indexedfolders.model"));
+					out.write(Util.toString(indexedFolders));
+				} catch (IOException e) {
+					e.printStackTrace();
+				} finally {
+					try {
+						out.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				
 			} catch (Exception e) {
 				System.out.println("Indexing Master: Error happen when updating lists! Now roll back!");
 				mainII = backUpII;
 				indexedFolders = backUpIF;
+				BufferedWriter out = null;
+				try {
+					out = new BufferedWriter(new FileWriter("mainii.model"));
+					out.write(Util.toString(mainII));
+				} catch (IOException e1) {
+					e.printStackTrace();
+				} finally {
+					try {
+						out.close();
+					} catch (IOException e1) {
+						e.printStackTrace();
+					}
+				}
+				
+				try {
+					out = new BufferedWriter(new FileWriter("indexedfolders.model"));
+					out.write(Util.toString(indexedFolders));
+				} catch (IOException e1) {
+					e.printStackTrace();
+				} finally {
+					try {
+						out.close();
+					} catch (IOException e1) {
+						e.printStackTrace();
+					}
+				}
 				return 0;
 			}
 			System.out.println("Indexing Master: Finished! Return result.");

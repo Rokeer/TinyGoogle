@@ -11,9 +11,9 @@ import java.util.concurrent.Executors;
 
 public class Helper {
 
-	int numOfThread = 3;
-	String filename = "";
-	int port = 0;
+	private int numOfThread = 3;
+	private String filename = "";
+	private int port = 0;
 	private ServerSocket mServerSocket;
 	// thread pool
 	private ExecutorService mExecutorService;

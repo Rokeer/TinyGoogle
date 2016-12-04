@@ -1,4 +1,6 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -6,7 +8,7 @@ import java.net.Socket;
 import java.util.Hashtable;
 
 public class HelperChecker implements Runnable{
-	Hashtable<String, Integer> helperList = null;
+	private Hashtable<String, Integer> helperList = null;
 	
 	public HelperChecker (Hashtable<String, Integer> helperList) {
 		this.helperList = helperList;
@@ -37,8 +39,25 @@ public class HelperChecker implements Runnable{
 							System.out.println("Server: Receive mssage from helper: " + msg);
 							if (!msg.equals("1")) {
 								System.out.println("Server: This helper has problem, remove it from helper list");
-								helperList.remove(key);
-								//removeList.add(key);
+								
+								synchronized (helperList) {
+									helperList.remove(key);
+									BufferedWriter out = null;
+									try {
+										out = new BufferedWriter(new FileWriter("helperlist.model"));
+										out.write(Util.toString(helperList));
+									} catch (IOException e) {
+										e.printStackTrace();
+									} finally {
+										try {
+											out.close();
+										} catch (IOException e) {
+											e.printStackTrace();
+										}
+									}
+								}
+								
+								
 							}
 						}
 					} catch (IOException e) {

@@ -1,4 +1,6 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -76,8 +78,26 @@ public class ServerThread implements Runnable {
 
 					System.out.println("Server: This is a register request from Helper");
 					int numOfThread = Integer.parseInt(msgs[1]);
+					boolean flag = false;
 					synchronized (helperList) {
-						helperList.put(msgs[2], numOfThread);
+						flag = helperList.containsKey(msgs[2]);
+						if (!flag) {
+							helperList.put(msgs[2], numOfThread);
+							BufferedWriter out = null;
+							try {
+								out = new BufferedWriter(new FileWriter("helperlist.model"));
+								out.write(Util.toString(helperList));
+							} catch (IOException e) {
+								e.printStackTrace();
+							} finally {
+								try {
+									out.close();
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
+							}
+						}
+						
 					}
 
 					for (int i = 0; i < numOfThread; i++) {
@@ -85,7 +105,9 @@ public class ServerThread implements Runnable {
 						int port = Integer.parseInt(tmp[1]);
 						String server = tmp[0];
 						synchronized (helperQueue) {
-							helperQueue.add(new HelperToken(server, port, i));
+							if (!flag) {
+								helperQueue.add(new HelperToken(server, port, i));
+							}
 						}
 						
 					}

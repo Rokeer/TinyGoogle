@@ -2,16 +2,33 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 public class SearchTask {
-	Socket socket = null;
-	ArrayList<String> wordList = new ArrayList<String>();
-	String query = "";
+	private Socket socket = null;
+	private ArrayList<String> wordList = new ArrayList<String>();
+	private String query = "";
 	
 	public SearchTask(Socket socket, String query) {
 		this.socket = socket;
-		String[] tmp = query.split(",");
-		for (int i = 0; i < tmp.length; i++) {
-			wordList.add(tmp[i].trim());
+
+		String word = "";
+		StringBuffer sb = new StringBuffer();
+		for (char c : query.toCharArray()) {
+			if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9') {
+				sb.append(c);
+			} else {
+				word = sb.toString();
+				wordList.add(word);
+				sb = new StringBuffer();
+			}
+
 		}
+		word = sb.toString();
+		if (word.length() > 0) {
+			wordList.add(word);
+		}
+		
+		
+		
+		
 		this.query = query;
 	}
 

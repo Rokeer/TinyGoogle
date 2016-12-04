@@ -20,6 +20,7 @@ public class HelperThread implements Runnable {
 		mBufferedReader = new BufferedReader(new InputStreamReader(mSocket.getInputStream()));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void run() {
 		try {
@@ -128,14 +129,31 @@ public class HelperThread implements Runnable {
 							hashedFileList.put(fileList.get(i), 1);
 						}
 						
+						InvertedIndex tmpII = new InvertedIndex();
 						for (int i = 0; i < wordList.size(); i++) {
+							tmpII = ii;
+							ii = new InvertedIndex();
 							if (mainII.containsKey(wordList.get(i))){
 								LinkedList<IIItem> list = mainII.get(wordList.get(i));
 								for (int j = 0; j < list.size(); j++) {
 									if (hashedFileList.containsKey(list.get(j).getID())){
-										ii.put("result", list.get(j));
+										if (i == 0) {
+											ii.put("result", list.get(j));
+										} else {
+											LinkedList<IIItem> tmpList = tmpII.get("result");
+											for (int m = 0; m < tmpList.size(); m++) {
+												if (tmpList.get(m).getID().equals(list.get(j).getID())) {
+													ii.put("result", list.get(j));
+													break;
+												}
+											}
+										}
+										
 									}
 								}
+							} else {
+								ii = new InvertedIndex();
+								break;
 							}
 						}
 						
