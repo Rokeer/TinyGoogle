@@ -124,8 +124,8 @@ public class Client {
 		
 		//c.sendRequest(1, "1,/Users/colin/Documents/PPAP");
 		//c.sendRequest(1, "1,/Users/colin/Documents/PPAP2");
-		//c.sendRequest(2, "colin");
-		c.start();
+		c.sendRequest(2, "I, apple, colin");
+		//c.start();
 
 	}
 

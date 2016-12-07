@@ -36,113 +36,121 @@ public class SearchQueryMaster implements Runnable {
 		System.out.println("Search Query Master: Start to work on query \"" + task.getQuery() + "\" from "
 				+ task.getSocket().getRemoteSocketAddress());
 		ArrayList<Hashtable<String, Object>> paraList = new ArrayList<Hashtable<String, Object>>();
-		
-		for (String folder : indexedFolders.keySet()) {
-			Hashtable<String, Object> parameters = new Hashtable<String, Object>();
-			parameters.put("folder", folder);
-			parameters.put("wordList", task.getWordList());
-			parameters.put("fileList", indexedFolders.get(folder));
-			parameters.put("ii", mainII);
-			paraList.add(parameters);
+
+		InvertedIndex searchingII = new InvertedIndex();
+		for (int i = 0; i < task.getWordList().size(); i++) {
+			if (mainII.containsKey(task.getWordList().get(i))) {
+				searchingII.put(task.getWordList().get(i), mainII.get(task.getWordList().get(i)));
+			}
 		}
 		
 		int result = 1;
 		InvertedIndex resultII = null;
-		do {
-			try{
-				resultII = new InvertedIndex();
-				ExecutorService mExecutorService = Executors.newCachedThreadPool();
-				Hashtable<String, HelperToken> htList = new Hashtable<String, HelperToken>();
-				Hashtable<String, InvertedIndex> iiList = new Hashtable<String, InvertedIndex>();
-				for (int i = 0; i < paraList.size(); i++) {
+		if (searchingII.size() > 0){
+			for (String folder : indexedFolders.keySet()) {
+				Hashtable<String, Object> parameters = new Hashtable<String, Object>();
+				parameters.put("folder", folder);
+				parameters.put("wordList", task.getWordList());
+				parameters.put("fileList", indexedFolders.get(folder));
+				parameters.put("ii", searchingII);
+				paraList.add(parameters);
+			}
 
-					HelperToken ht;
+			
+			
+			do {
+				try {
+					resultII = new InvertedIndex();
+					ExecutorService mExecutorService = Executors.newCachedThreadPool();
+					Hashtable<String, HelperToken> htList = new Hashtable<String, HelperToken>();
+					Hashtable<String, InvertedIndex> iiList = new Hashtable<String, InvertedIndex>();
+					for (int i = 0; i < paraList.size(); i++) {
 
-					do {
-						
+						HelperToken ht;
+
+						do {
+
 							while (helperQueue.isEmpty()) {
 								System.out.println("Search Query Master: There is no available helper now, wait for 1s.");
-								
+
 								Thread.sleep(1000);
 							}
-						synchronized (helperQueue) {
-							if(!helperQueue.isEmpty()){
-								ht = helperQueue.remove();
-								System.out.println("Search Query Master: Assign a helper to work on " + paraList.get(i).get("folder"));
-								mExecutorService.execute(new SearchQueryMasterThread(paraList.get(i), iiList, ht, helperQueue));
-							} else {
-								ht = null;
+							synchronized (helperQueue) {
+								if (!helperQueue.isEmpty()) {
+									ht = helperQueue.remove();
+									System.out.println("Search Query Master: Assign a helper to work on "
+											+ paraList.get(i).get("folder"));
+									mExecutorService
+											.execute(new SearchQueryMasterThread(paraList.get(i), iiList, ht, helperQueue));
+								} else {
+									ht = null;
+								}
+
 							}
-							
+						} while (!helperList.containsKey(ht.getServer() + ":" + ht.getPort()) && ht == null);
+						htList.put((String) paraList.get(i).get("folder"), ht);
+					}
+
+					System.out.println("Search Query Master: All jobs were assigned, wait for helpers");
+					mExecutorService.shutdown();
+					if (!mExecutorService.awaitTermination((waitTime * retry), TimeUnit.SECONDS)) {
+						if (retry < maximumRetry) {
+							System.out.println("Search Query Master: Threads didn't finish in " + (waitTime * retry)
+									+ " seconds! Increase waiting time to " + (waitTime * (retry + 1))
+									+ " seconds and retry!");
+						} else {
+							System.out.println("Search Query Master: Threads didn't finish in " + (waitTime * retry)
+									+ " seconds! Report Error!");
 						}
-					} while (!helperList.containsKey(ht.getServer() + ":" + ht.getPort()) && ht == null);
-					htList.put((String) paraList.get(i).get("folder"), ht);
-				}
-				
-				System.out.println("Search Query Master: All jobs were assigned, wait for helpers");
-				mExecutorService.shutdown();
-				if (!mExecutorService.awaitTermination((waitTime * retry), TimeUnit.SECONDS)) {
-					if (retry < maximumRetry) {
-						System.out.println("Search Query Master: Threads didn't finish in " + (waitTime * retry)
-								+ " seconds! Increase waiting time to " + (waitTime * (retry + 1)) + " seconds and retry!");
+						result = 0;
+					} else if (iiList.size() != paraList.size()) {
+						if (retry < maximumRetry) {
+							System.out.println("Search Query Master: At least one thread have problem! Retry!");
+						} else {
+							System.out.println("Search Query Master: At least one thread have problem! Report Error!");
+						}
+						result = 0;
 					} else {
-						System.out.println("Search Query Master: Threads didn't finish in " + (waitTime * retry)
-								+ " seconds! Report Error!");
+						System.out.println("Search Query Master: All jobs done, merging results.");
+						for (int i = 0; i < paraList.size(); i++) {
+							resultII.merge(iiList.get(paraList.get(i).get("folder")));
+						}
+						// System.out.println(localII.toString());
 					}
-					result = 0;
-				} else if (iiList.size() != paraList.size()) {
-					if (retry < maximumRetry) {
-						System.out.println("Search Query Master: At least one thread have problem! Retry!");
-					} else {
-						System.out.println("Search Query Master: At least one thread have problem! Report Error!");
-					}
-					result = 0;
-				} else {
-					System.out.println("Search Query Master: All jobs done, merging results.");
+
 					for (int i = 0; i < paraList.size(); i++) {
-						resultII.merge(iiList.get(paraList.get(i).get("folder")));
-					}
-					//System.out.println(localII.toString());
-				}
-				
-				
-				for (int i = 0; i < paraList.size(); i++) {
-					if (!iiList.containsKey(paraList.get(i).get("folder"))) {
-						synchronized (helperQueue) {
-							helperQueue.add(htList.get(paraList.get(i).get("folder")));
+						if (!iiList.containsKey(paraList.get(i).get("folder"))) {
+							synchronized (helperQueue) {
+								helperQueue.add(htList.get(paraList.get(i).get("folder")));
+							}
 						}
 					}
+
+					result = 1;
+
+				} catch (Exception e) {
+					System.out.println("Search Query Master: Error happen when searching " + task.getQuery());
+					result = 0;
 				}
-				
-				
-				result = 1;
-				
-			} catch (Exception e) {
-				System.out.println("Search Query Master: Error happen when searching " + task.getQuery());
-				result = 0;
-			}
-			
-			
-			retry = retry + 1;
-		} while (result == 0 || retry < maximumRetry);
+
+				retry = retry + 1;
+			} while (result == 0 || retry < maximumRetry);
+		}
 		
-		
+
 		try {
 			mPrintWriter = new PrintWriter(task.getSocket().getOutputStream(), true);
 			if (result == 0) {
 				mPrintWriter.println(result);
 			} else {
 				mPrintWriter.println(result + "," + Util.toString(resultII));
-				//System.out.println(resultII.toString());
+				// System.out.println(resultII.toString());
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		
-		
+
 	}
 
 }

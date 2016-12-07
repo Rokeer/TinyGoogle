@@ -1,7 +1,10 @@
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.LinkedList;
+
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
 @SuppressWarnings("serial")
 public class InvertedIndex implements Serializable{
@@ -25,8 +28,17 @@ public class InvertedIndex implements Serializable{
 		return new InvertedIndex(list);
 	}
 	
+	public int size() {
+		return list.size();
+	}
+	
 	public LinkedList<IIItem> get (String word) {
-		return list.get(word);
+		if (list.containsKey(word)){
+			return list.get(word);
+		} else {
+			return new LinkedList<IIItem>();
+		}
+		
 	}
 	
 	
@@ -47,6 +59,8 @@ public class InvertedIndex implements Serializable{
 			}
 		}
 	}
+	
+
 	
 	public void merge(InvertedIndex newII) {
 		
@@ -95,6 +109,11 @@ public class InvertedIndex implements Serializable{
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
+	public void put(String word, LinkedList<IIItem> tmpList) {
+		list.put(word, (LinkedList<IIItem>) tmpList.clone());
+	}
+	
 	public String toString() {
 		String result = "";
 		for (String key : list.keySet()) {
@@ -110,17 +129,26 @@ public class InvertedIndex implements Serializable{
 	
 	public String showResult() {
 		String result = "";
-		if (list.containsKey("result")){
-			LinkedList<IIItem> tmpList = list.get("result");
-			for (int i = 0; i < tmpList.size(); i++) {
-				result = result + tmpList.get(i).getID() + " -> " + tmpList.get(i).getCount() + "\n";
+		int[] counts = new int[list.size()];
+		int count = 0;
+		for (String index : list.keySet()) {
+			counts[count] = Integer.parseInt(index);
+			count++;
+		}
+		Arrays.sort(counts);
+		for (int i = counts.length-1; i >= 0; i--) {
+			LinkedList<IIItem> tmpList = list.get(counts[i]+"");
+			result = result + "Keyword matched: " + counts[i] + "\n";
+			for (int j = 0; j < tmpList.size(); j++) {
+				result = result + tmpList.get(j).getID() + " WC: " + tmpList.get(j).getCount() + "\n";
 			}
 			if (!result.equals("")) {
 				result = result.substring(0, result.length()-1);
 			}
+			result = result + "\n";
 		}
 		if (result.equals("")) {
-			result = "Sorry there is no document contains all keywords in your searching query, please try again...";
+			result = "Sorry there is no document contains any of the keywords in your searching query, please try again...";
 		}
 		return result;
 	}

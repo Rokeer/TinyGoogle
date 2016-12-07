@@ -8,7 +8,7 @@ public class SearchTask {
 	
 	public SearchTask(Socket socket, String query) {
 		this.socket = socket;
-
+		query = query.toLowerCase();
 		String word = "";
 		StringBuffer sb = new StringBuffer();
 		for (char c : query.toCharArray()) {
@@ -16,7 +16,9 @@ public class SearchTask {
 				sb.append(c);
 			} else {
 				word = sb.toString();
-				wordList.add(word);
+				if (word.length() > 0) {
+					wordList.add(word);
+				}
 				sb = new StringBuffer();
 			}
 

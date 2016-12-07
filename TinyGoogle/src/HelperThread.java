@@ -97,15 +97,14 @@ public class HelperThread implements Runnable {
 						// Or we could just do this:
 						// ex.printStackTrace();
 					}
-					if(result == 1) {
+					if (result == 1) {
 						System.out.println("Helper: Job done. Return result");
 						// System.out.println(ii.toString());
 						mPrintWriter.println(result + "," + Util.toString(ii));
 					} else {
 						mPrintWriter.println(result);
 					}
-					
-					
+
 					mPrintWriter.close();
 					mSocket.close();
 				} else if (msgs[0].equals("2")) {
@@ -113,7 +112,7 @@ public class HelperThread implements Runnable {
 					mPrintWriter = new PrintWriter(mSocket.getOutputStream(), true);
 
 					mStrMSG = mStrMSG.substring(2, mStrMSG.length());
-					
+
 					InvertedIndex ii = new InvertedIndex();
 
 					String folder = "";
@@ -122,52 +121,48 @@ public class HelperThread implements Runnable {
 						folder = (String) parameters.get("folder");
 						ArrayList<String> wordList = (ArrayList<String>) parameters.get("wordList");
 						ArrayList<String> fileList = (ArrayList<String>) parameters.get("fileList");
-						InvertedIndex mainII = (InvertedIndex) parameters.get("ii");
-						
+						InvertedIndex searchingII = (InvertedIndex) parameters.get("ii");
+
 						Hashtable<String, Integer> hashedFileList = new Hashtable<String, Integer>();
 						for (int i = 0; i < fileList.size(); i++) {
 							hashedFileList.put(fileList.get(i), 1);
 						}
-						
+
+						Hashtable<String, Integer> countTable = new Hashtable<String, Integer>();
 						InvertedIndex tmpII = new InvertedIndex();
+
 						for (int i = 0; i < wordList.size(); i++) {
-							tmpII = ii;
-							ii = new InvertedIndex();
-							if (mainII.containsKey(wordList.get(i))){
-								LinkedList<IIItem> list = mainII.get(wordList.get(i));
+							String word = wordList.get(i);
+							if (searchingII.containsKey(word)) {
+								LinkedList<IIItem> list = searchingII.get(word);
 								for (int j = 0; j < list.size(); j++) {
-									if (hashedFileList.containsKey(list.get(j).getID())){
-										if (i == 0) {
-											ii.put("result", list.get(j));
+									if (hashedFileList.containsKey(list.get(j).getID())) {
+										tmpII.put("result", list.get(j));
+										if (countTable.containsKey(list.get(j).getID())) {
+											countTable.put(list.get(j).getID(),
+													countTable.get(list.get(j).getID()) + 1);
 										} else {
-											LinkedList<IIItem> tmpList = tmpII.get("result");
-											for (int m = 0; m < tmpList.size(); m++) {
-												if (tmpList.get(m).getID().equals(list.get(j).getID())) {
-													ii.put("result", list.get(j));
-													break;
-												}
-											}
+											countTable.put(list.get(j).getID(), 1);
 										}
-										
 									}
 								}
-							} else {
-								ii = new InvertedIndex();
-								break;
 							}
 						}
 						
-					
+						LinkedList<IIItem> list = tmpII.get("result");
+						for (int i = 0; i < list.size(); i++) {
+							ii.put(countTable.get(list.get(i).getID())+"", list.get(i));
+						}
+						
+
 					} catch (ClassNotFoundException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 						result = 0;
 						System.out.println("Helper: Error searching '" + folder + "'");
 					}
-					
-					
-					
-					if(result == 1) {
+
+					if (result == 1) {
 						System.out.println("Helper: Job done. Return result");
 						// System.out.println(ii.toString());
 						mPrintWriter.println(result + "," + Util.toString(ii));
@@ -175,7 +170,6 @@ public class HelperThread implements Runnable {
 						mPrintWriter.println(result);
 					}
 
-					
 					mPrintWriter.close();
 					mSocket.close();
 				} else {
