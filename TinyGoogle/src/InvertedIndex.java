@@ -136,8 +136,9 @@ public class InvertedIndex implements Serializable{
 			count++;
 		}
 		Arrays.sort(counts);
+		boolean flag = false;
 		for (int i = counts.length-1; i >= 0; i--) {
-			if (output == 10) {
+			if (flag) {
 				break;
 			}
 			
@@ -145,12 +146,18 @@ public class InvertedIndex implements Serializable{
 			result = result + "Keyword matched: " + counts[i] + "\n";
 			for (int j = 0; j < tmpList.size(); j++) {
 				result = result + tmpList.get(j).getID() + " WC: " + tmpList.get(j).getCount() + "\n";
+				output++;
+				if (output == 10) {
+					flag = true;
+					break;
+				}
+				
 			}
 			if (!result.equals("")) {
 				result = result.substring(0, result.length()-1);
 			}
 			result = result + "\n";
-			output++;
+			
 			
 		}
 		if (result.equals("")) {
