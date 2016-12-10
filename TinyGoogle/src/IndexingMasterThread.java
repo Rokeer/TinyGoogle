@@ -41,7 +41,7 @@ public class IndexingMasterThread implements Runnable {
 
 			while (((mStrMSG = mBufferedReader.readLine()) != null)) {
 				// mStrMSG = mStrMSG.trim();
-				System.out.println("Indexing Master Thread: Receiver result " + mStrMSG + " for " + file
+				System.out.println("Indexing Master Thread: Receive result for " + file
 						+ " from helper " + ht.getServer() + ":" + ht.getPort());
 
 				String[] msgs = mStrMSG.split(",");

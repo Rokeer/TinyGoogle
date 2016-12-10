@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
 @SuppressWarnings("serial")
 public class InvertedIndex implements Serializable{
@@ -128,6 +127,7 @@ public class InvertedIndex implements Serializable{
 	}
 	
 	public String showResult() {
+		int output = 0;
 		String result = "";
 		int[] counts = new int[list.size()];
 		int count = 0;
@@ -137,6 +137,10 @@ public class InvertedIndex implements Serializable{
 		}
 		Arrays.sort(counts);
 		for (int i = counts.length-1; i >= 0; i--) {
+			if (output == 10) {
+				break;
+			}
+			
 			LinkedList<IIItem> tmpList = list.get(counts[i]+"");
 			result = result + "Keyword matched: " + counts[i] + "\n";
 			for (int j = 0; j < tmpList.size(); j++) {
@@ -146,6 +150,8 @@ public class InvertedIndex implements Serializable{
 				result = result.substring(0, result.length()-1);
 			}
 			result = result + "\n";
+			output++;
+			
 		}
 		if (result.equals("")) {
 			result = "Sorry there is no document contains any of the keywords in your searching query, please try again...";

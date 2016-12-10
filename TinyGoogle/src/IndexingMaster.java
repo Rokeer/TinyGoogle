@@ -52,7 +52,7 @@ public class IndexingMaster {
 			for (File file2 : files) {
 				fileName = file2.getName();
 				if (file2.isDirectory()) {
-					folderList.add(file2.getName());
+					folderList.add(file2.getAbsolutePath());
 					// folderNum++;
 				} else if (fileName.endsWith("txt")) {
 					filelist.add(file2.getAbsolutePath());
@@ -157,7 +157,9 @@ public class IndexingMaster {
 		
 		try {
 			while (!folderList.isEmpty()) {
+				System.out.println("Test: " + folderList.size());
 				path = folderList.removeFirst();
+				System.out.println("Test: " + path);
 				fileList = getFileList(path);
 
 				if (indexedFolders.containsKey(path)) {
