@@ -37,10 +37,11 @@ public class HelperThread implements Runnable {
 					mSocket.close();
 
 				} else if (msgs[0].equals("1")) {
+					int lineNum = Integer.parseInt(msgs[1]);
 					System.out.println("Helper: Indexing request, start working");
 					mPrintWriter = new PrintWriter(mSocket.getOutputStream(), true);
 
-					mStrMSG = mStrMSG.substring(2, mStrMSG.length());
+					mStrMSG = mStrMSG.substring(3+msgs[1].length(), mStrMSG.length());
 					InvertedIndex ii = new InvertedIndex();
 
 					String line = "";
@@ -53,34 +54,42 @@ public class HelperThread implements Runnable {
 
 						// Always wrap FileReader in BufferedReader.
 						BufferedReader bufferedReader = new BufferedReader(fileReader);
-
+						int count = 0;
 						while ((line = bufferedReader.readLine()) != null) {
-							line = line.trim().toLowerCase();
-							StringBuffer sb = new StringBuffer();
-							for (char c : line.toCharArray()) {
-								if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9') {
-									sb.append(c);
-								} else {
-									word = sb.toString();
-									if (word.length() > 0) {
-										if (wordCount.containsKey(word)) {
-											wordCount.put(word, wordCount.get(word) + 1);
-										} else {
-											wordCount.put(word, 1);
+							if(count < lineNum) {
+								
+							} else if (count == lineNum + 1000){
+								break;
+							} else {
+								line = line.trim().toLowerCase();
+								StringBuffer sb = new StringBuffer();
+								for (char c : line.toCharArray()) {
+									if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9') {
+										sb.append(c);
+									} else {
+										word = sb.toString();
+										if (word.length() > 0) {
+											if (wordCount.containsKey(word)) {
+												wordCount.put(word, wordCount.get(word) + 1);
+											} else {
+												wordCount.put(word, 1);
+											}
 										}
+										sb = new StringBuffer();
 									}
-									sb = new StringBuffer();
-								}
 
-							}
-							word = sb.toString();
-							if (word.length() > 0) {
-								if (wordCount.containsKey(word)) {
-									wordCount.put(word, wordCount.get(word) + 1);
-								} else {
-									wordCount.put(word, 1);
+								}
+								word = sb.toString();
+								if (word.length() > 0) {
+									if (wordCount.containsKey(word)) {
+										wordCount.put(word, wordCount.get(word) + 1);
+									} else {
+										wordCount.put(word, 1);
+									}
 								}
 							}
+							count++;
+							
 						}
 
 						for (String key : wordCount.keySet()) {

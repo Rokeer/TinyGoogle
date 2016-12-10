@@ -49,7 +49,7 @@ public class Server {
 			System.out.println("Server: Store Server information to " + filename);
 
 			System.out.println("Server: Initializing...");
-			recovery();
+			//recovery();
 			
 			mExecutorService.execute(
 					new WorkQueueMonitor(workQueue, numOfSQM, helperList, helperQueue, mainII, indexedFolders));

@@ -1,7 +1,9 @@
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.LinkedList;
@@ -176,7 +178,7 @@ public class IndexingMaster {
 				Hashtable<String, InvertedIndex> iiList = new Hashtable<String, InvertedIndex>();
 				Hashtable<String, HelperToken> htList = new Hashtable<String, HelperToken>();
 				for (int i = 0; i < fileList.size(); i++) {
-
+					
 					HelperToken ht;
 
 					do {

@@ -121,9 +121,9 @@ public class Client {
 		String path = "";
 		String filename = path + "server.txt";
 		Client c = new Client(filename);
-		//c.sendRequest(1, "1,/Users/colin/Documents/book/input");
-		//c.sendRequest(1, "1,/Users/colin/Documents/PPAP");
-		//c.sendRequest(1, "1,/Users/colin/Documents/PPAP2");
+		c.sendRequest(1, "1,/Users/colin/Documents/book/input");
+		c.sendRequest(1, "1,/Users/colin/Documents/PPAP");
+		c.sendRequest(1, "1,/Users/colin/Documents/PPAP2");
 		c.sendRequest(2, "I, apple, colin");
 		//c.start();
 

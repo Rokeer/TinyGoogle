@@ -18,7 +18,7 @@ public class HelperChecker implements Runnable{
 	public void run() {
 		try {
 			while (true){
-				Thread.sleep(60000);
+				
 				BufferedReader br = null;
 				PrintWriter pw = null;
 				//ArrayList<String> removeList = new ArrayList<String>();
@@ -67,7 +67,7 @@ public class HelperChecker implements Runnable{
 						//removeList.add(key);
 					}
 				}
-				
+				Thread.sleep(60000);
 			}
 			
 		} catch (InterruptedException e) {

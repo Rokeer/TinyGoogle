@@ -9,7 +9,7 @@ import java.util.Hashtable;
 import java.util.Random;
 
 public class Util {
-	public static boolean TCP = false;
+	public static boolean TCP = true;
 	public static Hashtable<Integer, Integer> portTable = new Hashtable<Integer, Integer>();
 	/** Read the object from Base64 string. */
 	public static Object fromString(String s) throws IOException, ClassNotFoundException {
@@ -40,8 +40,8 @@ public class Util {
 	}
 	
 	public static int availablePort() {
-        int max=16000;
-        int min=20000;
+        int max=50000;
+        int min=16000;
         Random random = new Random();
         int port = 0;
         do {
