@@ -13,6 +13,7 @@ public class IndexingMasterThread implements Runnable {
 	private InvertedIndex ii = new InvertedIndex();
 	private String mStrMSG = "";
 	private Queue<HelperToken> helperQueue;
+    
 
 	public IndexingMasterThread(String file, Hashtable<String, InvertedIndex> iiList, HelperToken ht,
 			Queue<HelperToken> helperQueue) {
@@ -47,8 +48,33 @@ public class IndexingMasterThread implements Runnable {
 				String[] msgs = mStrMSG.split(",");
 				if (msgs[0].equals("0")) {
 					throw new Exception();
+				} else {
+					mStrMSG = mStrMSG.substring(2, mStrMSG.length());
+					if (Util.TCP) {
+						
+					} else {
+						System.out.println("Indexing Master Thread: Generating Port Number...");
+						
+						int port = Util.availablePort();
+						System.out.println("Indexing Master Thread: The Port Number is " + port);
+						mPrintWriter.println(port+"");
+						int remotePort = Integer.parseInt(mStrMSG);
+						//UdpRece ur = new UdpRece(port, remotePort, ht.getServer());
+						//ur.receAll();
+						mStrMSG = "";
+						String tmp = "";
+						do {
+							mStrMSG = mStrMSG + tmp;
+							tmp = UDPUtil.receive(port, remotePort, ht.getServer());
+							//mBufferedReader.readLine();
+							mPrintWriter.println("1");
+						} while (!tmp.equals("This is the end"));
+						Util.portTable.remove(port);
+					}
+					
 				}
-				mStrMSG = mStrMSG.substring(2, mStrMSG.length());
+
+				
 				ii = (InvertedIndex) Util.fromString(mStrMSG);
 				//System.out.println("Indexing Master Thread: Ready to enter critical section");
 				synchronized (iiList) {

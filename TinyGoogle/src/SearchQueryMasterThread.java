@@ -49,6 +49,27 @@ public class SearchQueryMasterThread implements Runnable {
 					throw new Exception();
 				}
 				mStrMSG = mStrMSG.substring(2, mStrMSG.length());
+				
+				if (Util.TCP) {
+					
+				} else {
+					
+					int port = Util.availablePort();
+					mPrintWriter.println(port+"");
+					int remotePort = Integer.parseInt(mStrMSG);
+					//UdpRece ur = new UdpRece(port, remotePort, ht.getServer());
+					//ur.receAll();
+					mStrMSG = "";
+					String tmp = "";
+					do {
+						mStrMSG = mStrMSG + tmp;
+						tmp = UDPUtil.receive(port, remotePort, ht.getServer());
+						//mBufferedReader.readLine();
+						mPrintWriter.println("1");
+					} while (!tmp.equals("This is the end"));
+					Util.portTable.remove(port);
+				}
+				
 				ii = (InvertedIndex) Util.fromString(mStrMSG);
 				//System.out.println("Search Query Master Thread: Ready to enter critical section");
 				synchronized (iiList) {

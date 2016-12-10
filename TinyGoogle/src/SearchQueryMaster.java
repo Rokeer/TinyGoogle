@@ -20,6 +20,7 @@ public class SearchQueryMaster implements Runnable {
 	private int waitTime = 60;
 	private int retry = 1;
 	private int maximumRetry = 2;
+	
 
 	public SearchQueryMaster(SearchTask task, Hashtable<String, Integer> helperList, Queue<HelperToken> helperQueue,
 			InvertedIndex mainII, Hashtable<String, ArrayList<String>> indexedFolders) throws IOException {

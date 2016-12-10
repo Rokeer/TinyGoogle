@@ -100,7 +100,38 @@ public class HelperThread implements Runnable {
 					if (result == 1) {
 						System.out.println("Helper: Job done. Return result");
 						// System.out.println(ii.toString());
-						mPrintWriter.println(result + "," + Util.toString(ii));
+						if (Util.TCP) {
+							mPrintWriter.println(result + "," + Util.toString(ii));
+						} else {
+							int length = UDPUtil.LENGTH;
+							int port = Util.availablePort();
+							String send = Util.toString(ii);
+							//System.out.println(send.length());
+							int bulks = send.length() / length;
+							int remain = send.length() % length;
+							if (remain > 0) {
+								bulks = bulks + 1;
+							}
+							mPrintWriter.println(result + "," + port);
+							String remotePort = mBufferedReader.readLine();
+							int iPort = Integer.parseInt(remotePort);
+							for (int i = 0; i < bulks; i++) {
+								if (length * i + length < Util.toString(ii).length()) {
+									UDPUtil.send(Util.toString(ii).substring(length * i, length * i + length), port);
+									//mPrintWriter.println(result + "," + port);
+								} else {
+									UDPUtil.send(Util.toString(ii).substring(length * i, Util.toString(ii).length()), port);
+									//mPrintWriter.println(result + "," + port);
+								}
+								
+								mBufferedReader.readLine();
+							}
+							UDPUtil.send("This is the end", port);
+							Util.portTable.remove(port);
+						}
+						
+						
+						
 					} else {
 						mPrintWriter.println(result);
 					}
@@ -165,7 +196,35 @@ public class HelperThread implements Runnable {
 					if (result == 1) {
 						System.out.println("Helper: Job done. Return result");
 						// System.out.println(ii.toString());
-						mPrintWriter.println(result + "," + Util.toString(ii));
+						if (Util.TCP) {
+							mPrintWriter.println(result + "," + Util.toString(ii));
+						} else {
+							int length = UDPUtil.LENGTH;
+							int port = Util.availablePort();
+							String send = Util.toString(ii);
+							//System.out.println(send.length());
+							int bulks = send.length() / length;
+							int remain = send.length() % length;
+							if (remain > 0) {
+								bulks = bulks + 1;
+							}
+							mPrintWriter.println(result + "," + port);
+							String remotePort = mBufferedReader.readLine();
+							int iPort = Integer.parseInt(remotePort);
+							for (int i = 0; i < bulks; i++) {
+								if (length * i + length < Util.toString(ii).length()) {
+									UDPUtil.send(Util.toString(ii).substring(length * i, length * i + length), port);
+									//mPrintWriter.println(result + "," + port);
+								} else {
+									UDPUtil.send(Util.toString(ii).substring(length * i, Util.toString(ii).length()), port);
+									//mPrintWriter.println(result + "," + port);
+								}
+								
+								mBufferedReader.readLine();
+							}
+							UDPUtil.send("This is the end", port);
+							Util.portTable.remove(port);
+						}
 					} else {
 						mPrintWriter.println(result);
 					}
