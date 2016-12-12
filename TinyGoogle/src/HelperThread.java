@@ -27,6 +27,8 @@ public class HelperThread implements Runnable {
 			while (((mStrMSG = mBufferedReader.readLine()) != null)) {
 				int result = 1;
 				mStrMSG = mStrMSG.trim();
+				long startTime=0;
+				long endTime=0;
 				String[] msgs = mStrMSG.split(",");
 				System.out.println("Helper: Start handling the request");
 				if (msgs[0].equals("0")) {
@@ -37,6 +39,7 @@ public class HelperThread implements Runnable {
 					mSocket.close();
 
 				} else if (msgs[0].equals("1")) {
+					startTime = System.currentTimeMillis();
 					int lineNum = Integer.parseInt(msgs[1]);
 					System.out.println("Helper: Indexing request, start working");
 					mPrintWriter = new PrintWriter(mSocket.getOutputStream(), true);
@@ -108,6 +111,8 @@ public class HelperThread implements Runnable {
 					}
 					if (result == 1) {
 						System.out.println("Helper: Job done. Return result");
+						endTime = System.currentTimeMillis();
+						Util.mapTime = Util.mapTime + (endTime - startTime);
 						// System.out.println(ii.toString());
 						if (Util.TCP) {
 							mPrintWriter.println(result + "," + Util.toString(ii));
@@ -148,6 +153,7 @@ public class HelperThread implements Runnable {
 					mPrintWriter.close();
 					mSocket.close();
 				} else if (msgs[0].equals("2")) {
+					startTime = System.currentTimeMillis();
 					System.out.println("Helper: Searching request, start working");
 					mPrintWriter = new PrintWriter(mSocket.getOutputStream(), true);
 
@@ -204,6 +210,8 @@ public class HelperThread implements Runnable {
 
 					if (result == 1) {
 						System.out.println("Helper: Job done. Return result");
+						endTime = System.currentTimeMillis();
+						Util.mapTime = Util.mapTime + (endTime - startTime);
 						// System.out.println(ii.toString());
 						if (Util.TCP) {
 							mPrintWriter.println(result + "," + Util.toString(ii));
@@ -241,6 +249,9 @@ public class HelperThread implements Runnable {
 					mPrintWriter.close();
 					mSocket.close();
 				} else if (msgs[0].equals("3")) {
+					
+					
+					
 					mPrintWriter = new PrintWriter(mSocket.getOutputStream(), true);
 					mStrMSG = mStrMSG.substring(2, mStrMSG.length());
 					if (Util.TCP){
@@ -281,7 +292,7 @@ public class HelperThread implements Runnable {
 					
 					
 					
-					
+					startTime = System.currentTimeMillis();
 					Hashtable<String, Object> parameters = null;
 					try {
 						parameters = (Hashtable<String, Object>) Util.fromString(mStrMSG);
@@ -296,6 +307,11 @@ public class HelperThread implements Runnable {
 						localII.merge(iiList.get(fileList.get(i)));
 					}
 					System.out.println("Helper: Job done. Return result");
+					endTime = System.currentTimeMillis();
+					Util.reduceTime = Util.reduceTime + (endTime - startTime);
+					
+					
+					
 					if (Util.TCP) {
 						mPrintWriter.println("1," + Util.toString(localII));
 					} else {

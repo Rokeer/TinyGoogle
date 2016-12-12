@@ -141,6 +141,7 @@ public class InvertedIndex implements Serializable{
 	}
 	
 	public String showResult() {
+		long startTime = System.currentTimeMillis();
 		int output = 0;
 		String result = "";
 		int[] counts = new int[list.size()];
@@ -177,6 +178,8 @@ public class InvertedIndex implements Serializable{
 		if (result.equals("")) {
 			result = "Sorry there is no document contains any of the keywords in your searching query, please try again...";
 		}
+		long endTime = System.currentTimeMillis();
+		Util.reduceTime = Util.reduceTime + (endTime-startTime);
 		return result;
 	}
 	

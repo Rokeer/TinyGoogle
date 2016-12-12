@@ -110,6 +110,10 @@ public class Client {
 				break;
 			}
 			mSocket.close();
+			
+			if (Util.stat){
+				System.out.println("Server: Mapper Time: " + Util.mapTime + ", Reducer Time: " + Util.reduceTime);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

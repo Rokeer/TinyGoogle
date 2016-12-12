@@ -58,6 +58,8 @@ public class ServerThread implements Runnable {
 						mPrintWriter.println(result);
 						mPrintWriter.close();
 						mSocket.close();
+						
+						
 					} else if (msgs[1].equals("2")) {
 						System.out.println("Server: This is a searching request from Client");
 						SearchTask task = new SearchTask(mSocket, mStrMSG);

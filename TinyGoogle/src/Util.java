@@ -9,6 +9,9 @@ import java.util.Hashtable;
 import java.util.Random;
 
 public class Util {
+	public static boolean stat = true;
+	public static long mapTime = 0;
+	public static long reduceTime = 0;
 	public static boolean TCP = true;
 	public static Hashtable<Integer, Integer> portTable = new Hashtable<Integer, Integer>();
 	/** Read the object from Base64 string. */

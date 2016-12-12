@@ -113,9 +113,12 @@ public class SearchQueryMaster implements Runnable {
 						result = 0;
 					} else {
 						System.out.println("Search Query Master: All jobs done, merging results.");
+						long startTime = System.currentTimeMillis();
 						for (int i = 0; i < paraList.size(); i++) {
 							resultII.merge(iiList.get(paraList.get(i).get("folder")));
 						}
+						long endTime = System.currentTimeMillis();
+						Util.reduceTime = Util.reduceTime + (endTime-startTime);
 						// System.out.println(localII.toString());
 					}
 
