@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Hashtable;
 
 public class HelperChecker implements Runnable{
@@ -18,7 +19,7 @@ public class HelperChecker implements Runnable{
 	public void run() {
 		try {
 			while (true){
-				
+				ArrayList<String> removeList = new ArrayList<String>();
 				BufferedReader br = null;
 				PrintWriter pw = null;
 				//ArrayList<String> removeList = new ArrayList<String>();
@@ -61,11 +62,15 @@ public class HelperChecker implements Runnable{
 							}
 						}
 					} catch (IOException e) {
-						e.printStackTrace();
+						//e.printStackTrace();
 						System.out.println("Server: This helper has problem, remove it from helper list");
-						helperList.remove(key);
-						//removeList.add(key);
+						
+						removeList.add(key);
 					}
+				}
+				
+				for (int i = 0 ; i < removeList.size(); i++) {
+					helperList.remove(removeList.get(i));
 				}
 				Thread.sleep(60000);
 			}

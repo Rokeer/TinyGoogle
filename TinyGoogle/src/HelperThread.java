@@ -125,11 +125,11 @@ public class HelperThread implements Runnable {
 							String remotePort = mBufferedReader.readLine();
 							int iPort = Integer.parseInt(remotePort);
 							for (int i = 0; i < bulks; i++) {
-								if (length * i + length < Util.toString(ii).length()) {
-									UDPUtil.send(Util.toString(ii).substring(length * i, length * i + length), port);
+								if (length * i + length < send.length()) {
+									UDPUtil.send(send.substring(length * i, length * i + length), port);
 									//mPrintWriter.println(result + "," + port);
 								} else {
-									UDPUtil.send(Util.toString(ii).substring(length * i, Util.toString(ii).length()), port);
+									UDPUtil.send(send.substring(length * i, send.length()), port);
 									//mPrintWriter.println(result + "," + port);
 								}
 								
@@ -221,11 +221,11 @@ public class HelperThread implements Runnable {
 							String remotePort = mBufferedReader.readLine();
 							int iPort = Integer.parseInt(remotePort);
 							for (int i = 0; i < bulks; i++) {
-								if (length * i + length < Util.toString(ii).length()) {
-									UDPUtil.send(Util.toString(ii).substring(length * i, length * i + length), port);
+								if (length * i + length < send.length()) {
+									UDPUtil.send(send.substring(length * i, length * i + length), port);
 									//mPrintWriter.println(result + "," + port);
 								} else {
-									UDPUtil.send(Util.toString(ii).substring(length * i, Util.toString(ii).length()), port);
+									UDPUtil.send(send.substring(length * i, send.length()), port);
 									//mPrintWriter.println(result + "," + port);
 								}
 								
@@ -238,6 +238,94 @@ public class HelperThread implements Runnable {
 						mPrintWriter.println(result);
 					}
 
+					mPrintWriter.close();
+					mSocket.close();
+				} else if (msgs[0].equals("3")) {
+					mPrintWriter = new PrintWriter(mSocket.getOutputStream(), true);
+					mStrMSG = mStrMSG.substring(2, mStrMSG.length());
+					if (Util.TCP){
+						mPrintWriter = new PrintWriter(mSocket.getOutputStream(), true);
+
+						
+					} else {
+						//System.out.println("Indexing Master Thread: Generating Port Number...");
+
+						int port = Util.availablePort();
+						//System.out.println("Indexing Master Thread: The Port Number is " + port);
+						mPrintWriter.println(port + "");
+						int remotePort = Integer.parseInt(mStrMSG);
+						// UdpRece ur = new UdpRece(port, remotePort,
+						// ht.getServer());
+						// ur.receAll();
+						mStrMSG = "";
+						String tmp = "";
+						do {
+							mStrMSG = mStrMSG + tmp;
+							try {
+								String ip = mSocket.getInetAddress().toString();
+								ip = ip.substring(1, ip.length());
+								//System.out.println(mSocket.getInetAddress().toString());
+								tmp = UDPUtil.receive(port, remotePort, ip);
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							// mBufferedReader.readLine();
+							mPrintWriter.println("1");
+						} while (!tmp.equals("This is the end"));
+						Util.portTable.remove(port);
+					}
+					
+					
+					
+					
+					
+					
+					
+					Hashtable<String, Object> parameters = null;
+					try {
+						parameters = (Hashtable<String, Object>) Util.fromString(mStrMSG);
+					} catch (ClassNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					Hashtable<String, InvertedIndex> iiList = (Hashtable<String, InvertedIndex>) parameters.get("iiList");
+					ArrayList<String> fileList = (ArrayList<String>) parameters.get("fileList");
+					InvertedIndex localII = new InvertedIndex();
+					for (int i = 0; i < fileList.size(); i++) {
+						localII.merge(iiList.get(fileList.get(i)));
+					}
+					System.out.println("Helper: Job done. Return result");
+					if (Util.TCP) {
+						mPrintWriter.println("1," + Util.toString(localII));
+					} else {
+						int length = UDPUtil.LENGTH;
+						int port = Util.availablePort();
+						String send = Util.toString(localII);
+						//System.out.println(send.length());
+						int bulks = send.length() / length;
+						int remain = send.length() % length;
+						if (remain > 0) {
+							bulks = bulks + 1;
+						}
+						mPrintWriter.println("1," + port);
+						String remotePort = mBufferedReader.readLine();
+						int iPort = Integer.parseInt(remotePort);
+						for (int i = 0; i < bulks; i++) {
+							if (length * i + length < send.length()) {
+								UDPUtil.send(send.substring(length * i, length * i + length), port);
+								//mPrintWriter.println(result + "," + port);
+							} else {
+								UDPUtil.send(send.substring(length * i, send.length()), port);
+								//mPrintWriter.println(result + "," + port);
+							}
+							
+							mBufferedReader.readLine();
+						}
+						UDPUtil.send("This is the end", port);
+						Util.portTable.remove(port);
+					}
+					
 					mPrintWriter.close();
 					mSocket.close();
 				} else {

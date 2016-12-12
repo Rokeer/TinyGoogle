@@ -56,7 +56,7 @@ public class IndexingMaster {
 				if (file2.isDirectory()) {
 					folderList.add(file2.getAbsolutePath());
 					// folderNum++;
-				} else if (fileName.endsWith("txt")) {
+				} else if (!fileName.startsWith(".")) {
 					filelist.add(file2.getAbsolutePath());
 					// fileNum++;
 				}
@@ -222,9 +222,35 @@ public class IndexingMaster {
 					result = 0;
 				} else {
 					System.out.println("Indexing Master: All jobs done, merging results.");
-					for (int i = 0; i < fileList.size(); i++) {
-						localII.merge(iiList.get(fileList.get(i)));
-					}
+					
+					
+					HelperToken ht;
+
+					do {
+						
+							while (helperQueue.isEmpty()) {
+								System.out.println("Indexing Master: There is no available helper now, wait for 1s.");
+								
+								Thread.sleep(1000);
+							}
+						synchronized (helperQueue) {
+							if(!helperQueue.isEmpty()){
+								ht = helperQueue.remove();
+							} else {
+								ht = null;
+							}
+							
+						}
+					} while (!helperList.containsKey(ht.getServer() + ":" + ht.getPort()) && ht == null);
+					
+					IndexingReducerMaster irm = new IndexingReducerMaster(iiList, fileList, ht);
+					localII = irm.merge();
+					
+					
+					
+//					for (int i = 0; i < fileList.size(); i++) {
+//						localII.merge(iiList.get(fileList.get(i)));
+//					}
 					//System.out.println(localII.toString());
 				}
 				

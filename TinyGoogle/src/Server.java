@@ -49,7 +49,7 @@ public class Server {
 			System.out.println("Server: Store Server information to " + filename);
 
 			System.out.println("Server: Initializing...");
-			//recovery();
+			recovery();
 			
 			mExecutorService.execute(
 					new WorkQueueMonitor(workQueue, numOfSQM, helperList, helperQueue, mainII, indexedFolders));
@@ -196,12 +196,17 @@ public class Server {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		// String path =
-		// "/afs/cs.pitt.edu/usr0/colinzhang/public/Prj1HaoranZhang/";
-		String path = "";
+		String path = "/afs/cs.pitt.edu/usr0/colinzhang/public/Prj2HaoranZhang/socket_based/";
+		// String path = "";
 		String filename = path + "server.txt";
-		int port = 15222;
+		int port = Util.availablePort();
 		int numOfSQM = 10;
+		
+		if (args.length == 1) {
+			numOfSQM = Integer.parseInt(args[0]);
+		}
+		
+		
 		Server s = new Server(filename, port, numOfSQM);
 		s.start();
 	}

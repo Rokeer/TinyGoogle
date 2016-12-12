@@ -3,17 +3,22 @@
 set -x
 source ~/.bash_profile
 
+inputFolder="/user/colinzhang/prj2/smallinput"
+tempFolder="/user/colinzhang/prj2/temp"
+outputFolder="/user/colinzhang/prj2/output"
+indexingFolder="/user/colinzhang/prj2/indexing"
+
 hadoop fs -rmr /user/colinzhang/prj2/temp
 hadoop fs -rmr /user/colinzhang/prj2/output
 
-if [ -z "$1" ]
+if [ -z "$2" ]
   then
-    hadoop jar indexing.jar Indexing prj2/smallinput/ prj2/temp/ prj2/output/
+    hadoop jar indexing.jar Indexing $inputFolder $tempFolder $outputFolder
   else
-  	hadoop jar indexing.jar Indexing $1 prj2/temp/ prj2/output/
+  	hadoop jar indexing.jar Indexing $2 $tempFolder $outputFolder
 fi
 
-
-hadoop fs -cat '/user/colinzhang/prj2/output/part-00000' || exit -1
+hadoop fs -cp $outputFolder/part-00000 $indexingFolder/$1part-00000
+hadoop fs -cat $outputFolder'/part-00000' || exit -1
 
 exit 0

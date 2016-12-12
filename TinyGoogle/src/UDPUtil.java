@@ -8,9 +8,9 @@ public class UDPUtil {
 	private static final int TIMEOUT = 5000;
 	private static final int MAXNUM = 5;
 	public static final int LENGTH = 40960; // 65507
-
+	public static int delay = 0;
 	public static String receive(int port, int remotePort, String remoteIP) throws Exception {
-		Thread.sleep(100);
+		Thread.sleep(delay);
 		String result = "";
 		String str_send = port + "";
 		byte[] buf = new byte[LENGTH];
@@ -26,15 +26,22 @@ public class UDPUtil {
 
 		while (!receivedResponse && tries < MAXNUM) {
 			ds.send(dp_send);
+			
+			
 			try {
 				ds.receive(dp_receive);
+				
 
 				if (!dp_receive.getAddress().equals(InetAddress.getByName(remoteIP))) {
 					throw new IOException("Received packet from an umknown source");
 				}
 				receivedResponse = true;
+				if (delay > 0) {
+					delay = delay - 100;
+				}
 			} catch (InterruptedIOException e) {
 				tries += 1;
+				delay = delay + 100;
 				System.out.println("Time out," + (MAXNUM - tries) + " more tries...");
 			}
 		}

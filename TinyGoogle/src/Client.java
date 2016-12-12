@@ -25,18 +25,19 @@ public class Client {
 			System.out.println("1. Create index for a folder");
 			System.out.println("2. Search keyword");
 			Scanner scan = new Scanner(System.in);
-			String input = scan.next();
+			String input = scan.nextLine();
 			if (input.equals("1")) {
 
 				System.out.println(
 						"Please type in the folder name, e.g./afs/cs.pitt.edu/usr0/colinzhang/public/Prj1HaoranZhang/");
-				String folder = scan.next();
+				String folder = scan.nextLine();
 				System.out.println("Do you want to do it recursively? 0 or 1");
-				String recursion = scan.next();
+				String recursion = scan.nextLine();
 				sendRequest(1, recursion + "," + folder);
 			} else if (input.equals("2")) {
 				System.out.println("Please type in the keywords, e.g. this, is, colin");
-				String keywords = scan.next();
+				String keywords = scan.nextLine();
+				//keywords = "\"" + keywords + "\"";
 				sendRequest(2, keywords);
 			} else {
 				System.out.println("Unknow command, please try again!");
@@ -116,16 +117,16 @@ public class Client {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		// String path =
-		// "/afs/cs.pitt.edu/usr0/colinzhang/public/Prj1HaoranZhang/";
-		String path = "";
+		String path = "/afs/cs.pitt.edu/usr0/colinzhang/public/Prj2HaoranZhang/socket_based/";
+		// String path = "";
 		String filename = path + "server.txt";
 		Client c = new Client(filename);
-		c.sendRequest(1, "1,/Users/colin/Documents/book/input");
-		c.sendRequest(1, "1,/Users/colin/Documents/PPAP");
-		c.sendRequest(1, "1,/Users/colin/Documents/PPAP2");
-		c.sendRequest(2, "I, apple, colin");
-		//c.start();
+		//c.sendRequest(1, "0,/Users/colin/Documents/Study/AOS/Project_2/shake");
+		//c.sendRequest(1, "1,/Users/colin/Documents/book/input");
+		//c.sendRequest(1, "1,/Users/colin/Documents/PPAP");
+		//c.sendRequest(1, "1,/Users/colin/Documents/PPAP2");
+		//c.sendRequest(2, "I, apple, colin");
+		c.start();
 
 	}
 

@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 
 public class Helper {
 
-	private int numOfThread = 3;
+	private int numOfThread = 1;
 	private String filename = "";
 	private int port = 0;
 	private ServerSocket mServerSocket;
@@ -118,15 +118,12 @@ public class Helper {
 	
 	
 	public static void main(String[] args) {
-		// String path = "/afs/cs.pitt.edu/usr0/colinzhang/public/";
-		String path = "";
+		String path = "/afs/cs.pitt.edu/usr0/colinzhang/public/Prj2HaoranZhang/socket_based/";
+		// String path = "";
 		String filename = path + "server.txt";
-		int port = 15223;
+		int port = Util.availablePort();
 		if (args.length == 1) {
 			Helper h = new Helper(filename, port, Integer.parseInt(args[0]));
-			h.start();
-		} else if (args.length == 2){
-			Helper h = new Helper(filename, Integer.parseInt(args[0]), Integer.parseInt(args[1]));
 			h.start();
 		} else {
 			Helper h = new Helper(filename, port);

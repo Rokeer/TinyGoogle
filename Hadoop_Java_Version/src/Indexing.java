@@ -22,8 +22,8 @@ public class Indexing {
 		public void map(LongWritable key, Text value, OutputCollector<Text, IntWritable> output, Reporter reporter)
 				throws IOException {
 			FileSplit fileSplit = (FileSplit) reporter.getInputSplit();
-			// String filename = fileSplit.getPath().toString();
-			String filename = fileSplit.getPath().getName();
+			String filename = fileSplit.getPath().toString();
+			//String filename = fileSplit.getPath().getName();
 
 			String line = value.toString().toLowerCase();
 			String word = "";
