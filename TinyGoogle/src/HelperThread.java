@@ -354,6 +354,10 @@ public class HelperThread implements Runnable {
 				}
 				break;
 			}
+			if (Util.stat){
+				System.out.println("Server: Mapper Time: " + Util.mapTime + ", Reducer Time: " + Util.reduceTime);
+				
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

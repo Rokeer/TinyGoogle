@@ -20,7 +20,6 @@ public class SearchQueryMaster implements Runnable {
 	private int waitTime = 60;
 	private int retry = 1;
 	private int maximumRetry = 2;
-	
 
 	public SearchQueryMaster(SearchTask task, Hashtable<String, Integer> helperList, Queue<HelperToken> helperQueue,
 			InvertedIndex mainII, Hashtable<String, ArrayList<String>> indexedFolders) throws IOException {
@@ -44,10 +43,10 @@ public class SearchQueryMaster implements Runnable {
 				searchingII.put(task.getWordList().get(i), mainII.get(task.getWordList().get(i)));
 			}
 		}
-		
+
 		int result = 1;
 		InvertedIndex resultII = null;
-		if (searchingII.size() > 0){
+		if (searchingII.size() > 0) {
 			for (String folder : indexedFolders.keySet()) {
 				Hashtable<String, Object> parameters = new Hashtable<String, Object>();
 				parameters.put("folder", folder);
@@ -57,8 +56,6 @@ public class SearchQueryMaster implements Runnable {
 				paraList.add(parameters);
 			}
 
-			
-			
 			do {
 				try {
 					resultII = new InvertedIndex();
@@ -72,23 +69,24 @@ public class SearchQueryMaster implements Runnable {
 						do {
 
 							while (helperQueue.isEmpty()) {
-								System.out.println("Search Query Master: There is no available helper now, wait for 1s.");
+								System.out
+										.println("Search Query Master: There is no available helper now, wait for 1s.");
 
 								Thread.sleep(1000);
 							}
 							synchronized (helperQueue) {
 								if (!helperQueue.isEmpty()) {
 									ht = helperQueue.remove();
-									System.out.println("Search Query Master: Assign a helper to work on "
-											+ paraList.get(i).get("folder"));
-									mExecutorService
-											.execute(new SearchQueryMasterThread(paraList.get(i), iiList, ht, helperQueue));
+
 								} else {
 									ht = null;
 								}
 
 							}
-						} while (!helperList.containsKey(ht.getServer() + ":" + ht.getPort()) && ht == null);
+						} while (!helperList.containsKey(ht.getServer() + ":" + ht.getPort()) || ht == null);
+						System.out.println(
+								"Search Query Master: Assign a helper to work on " + paraList.get(i).get("folder"));
+						mExecutorService.execute(new SearchQueryMasterThread(paraList.get(i), iiList, ht, helperQueue));
 						htList.put((String) paraList.get(i).get("folder"), ht);
 					}
 
@@ -118,7 +116,7 @@ public class SearchQueryMaster implements Runnable {
 							resultII.merge(iiList.get(paraList.get(i).get("folder")));
 						}
 						long endTime = System.currentTimeMillis();
-						Util.reduceTime = Util.reduceTime + (endTime-startTime);
+						Util.reduceTime = Util.reduceTime + (endTime - startTime);
 						// System.out.println(localII.toString());
 					}
 
@@ -140,13 +138,16 @@ public class SearchQueryMaster implements Runnable {
 				retry = retry + 1;
 			} while (result == 0 || retry < maximumRetry);
 		}
-		
 
 		try {
 			mPrintWriter = new PrintWriter(task.getSocket().getOutputStream(), true);
 			if (result == 0) {
 				mPrintWriter.println(result);
 			} else {
+				if (Util.stat) {
+					System.out.println("Server: Mapper Time: " + Util.mapTime + ", Reducer Time: " + Util.reduceTime);
+
+				}
 				mPrintWriter.println(result + "," + Util.toString(resultII));
 				// System.out.println(resultII.toString());
 			}

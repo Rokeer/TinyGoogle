@@ -5,16 +5,19 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Queue;
 
 public class IndexingReducerMaster {
 	Hashtable<String, InvertedIndex> iiList;
 	ArrayList<String> fileList;
 	HelperToken ht;
 	String mStrMSG = "";
-	public IndexingReducerMaster(Hashtable<String, InvertedIndex> iiList, ArrayList<String> fileList, HelperToken ht) {
+	Queue<HelperToken> helperQueue;
+	public IndexingReducerMaster(Hashtable<String, InvertedIndex> iiList, ArrayList<String> fileList, HelperToken ht, Queue<HelperToken> helperQueue) {
 		this.iiList = iiList;
 		this.fileList = fileList;
 		this.ht = ht;
+		this.helperQueue = helperQueue;
 	}
 	
 	public InvertedIndex merge () {
@@ -138,7 +141,11 @@ public class IndexingReducerMaster {
 		
 		
 		
-		
+		synchronized (helperQueue) {
+			// System.out.println("Indexing Master Thread: Put the helper
+			// back to the queue");
+			helperQueue.add(ht);
+		}
 		
 		
 		

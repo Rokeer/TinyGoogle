@@ -191,14 +191,19 @@ public class IndexingMaster {
 						synchronized (helperQueue) {
 							if(!helperQueue.isEmpty()){
 								ht = helperQueue.remove();
-								System.out.println("Indexing Master: Assign a helper to work on " + fileList.get(i));
-								mExecutorService.execute(new IndexingMasterThread(fileList.get(i), iiList, ht, helperQueue));
+								
 							} else {
 								ht = null;
 							}
 							
 						}
-					} while (!helperList.containsKey(ht.getServer() + ":" + ht.getPort()) && ht == null);
+						//System.out.println(ht.getServer() + ":" + ht.getPort());
+						//System.out.println(helperList.containsKey(ht.getServer() + ":" + ht.getPort()));
+					} while (!helperList.containsKey(ht.getServer() + ":" + ht.getPort()) || ht == null);
+					
+					System.out.println("Indexing Master: Assign a helper to work on " + fileList.get(i));
+					mExecutorService.execute(new IndexingMasterThread(fileList.get(i), iiList, ht, helperQueue));
+					
 					htList.put(fileList.get(i), ht);
 				}
 
@@ -241,9 +246,9 @@ public class IndexingMaster {
 							}
 							
 						}
-					} while (!helperList.containsKey(ht.getServer() + ":" + ht.getPort()) && ht == null);
+					} while (!helperList.containsKey(ht.getServer() + ":" + ht.getPort()) || ht == null);
 					
-					IndexingReducerMaster irm = new IndexingReducerMaster(iiList, fileList, ht);
+					IndexingReducerMaster irm = new IndexingReducerMaster(iiList, fileList, ht, helperQueue);
 					localII = irm.merge();
 					
 					
@@ -280,6 +285,11 @@ public class IndexingMaster {
 
 		if (result == 1) {
 			result = updateLists(removeList, localIndexedFolders, localII);
+		}
+		
+		if (Util.stat){
+			System.out.println("Server: Mapper Time: " + Util.mapTime + ", Reducer Time: " + Util.reduceTime);
+			
 		}
 		return result;
 	}
