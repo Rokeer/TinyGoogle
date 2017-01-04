@@ -101,7 +101,12 @@ public class Client {
 					String[] tmp = mStrMSG.split(",");
 					if (tmp[0].equals("1")) {
 						InvertedIndex returned = (InvertedIndex) Util.fromString(mStrMSG.substring(2, mStrMSG.length()));
-						System.out.println(returned.showResult());
+						try {
+							System.out.println(returned.showResult());
+						} catch (Exception e) {
+							System.out.println("No matched results");
+						}
+						
 					} else {
 						System.out.println("Searching request for " + request + ": Fail");
 					}

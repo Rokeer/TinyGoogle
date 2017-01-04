@@ -9,7 +9,7 @@ import java.util.Hashtable;
 import java.util.Random;
 
 public class Util {
-	public static boolean stat = true;
+	public static boolean stat = false;
 	public static long mapTime = 0;
 	public static long reduceTime = 0;
 	public static boolean TCP = true;
